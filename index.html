@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Luciana Vicente | Corretora de Planos de Saúde</title>
+    <style>
+        :root { 
+            --cor-principal: #0275d8; 
+            --bg-claro: #f8f9fa; 
+            --texto: #333333;
+        }
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; margin: 0; color: var(--texto); scroll-behavior: smooth; line-height: 1.6; }
+        
+        /* HEADER */
+        header { display: flex; justify-content: space-between; align-items: center; padding: 15px 8%; background: #ffffff; position: sticky; top: 0; z-index: 1000; box-shadow: 0 2px 10px rgba(0,0,0,0.05); }
+        .logo-box { display: flex; align-items: center; height: 65px; }
+        .logo-texto { font-size: 1.6rem; font-weight: 800; color: #111111; text-transform: uppercase; text-decoration: none; }
+        .logo-texto span { color: var(--cor-principal); margin-left: 2px; }
+        nav { display: flex; }
+        nav a { text-decoration: none; color: var(--texto); font-weight: 600; margin-left: 20px; transition: 0.3s; }
+        nav a:hover { color: var(--cor-principal); }
+
+        /* MENU MOBILE */
+        .menu-toggle { display: none; cursor: pointer; font-size: 1.8rem; }
+        #check { display: none; }
+        @media (max-width: 768px) {
+            .menu-toggle { display: block; }
+            nav { position: absolute; top: 95px; left: -100%; width: 100%; background: #fff; flex-direction: column; text-align: center; padding: 20px 0; transition: 0.3s; box-shadow: 0 5px 10px rgba(0,0,0,0.1); }
+            #check:checked ~ nav { left: 0; }
+            nav a { display: block; margin: 15px 0; }
+        }
+
+        /* HERO - AJUSTE A URL ABAIXO */
+        .hero { 
+            /* ALTERE 'sua-imagem-hero.jpg' PARA O NOME REAL DO SEU ARQUIVO */
+            background: linear-gradient(rgba(0,0,0,0.65), rgba(0,0,0,0.65)), url('hero.png'); 
+            background-size: cover; background-position: center; height: 60vh; display: flex; flex-direction: column; justify-content: center; align-items: center; color: #ffffff; text-align: center; padding: 0 5%; 
+        }
+        .btn-action { background: #25d366; color: #ffffff; padding: 16px 32px; text-decoration: none; border-radius: 50px; font-weight: bold; transition: 0.3s; box-shadow: 0 4px 15px rgba(37, 211, 102, 0.3); }
+        .btn-simulador { background: var(--cor-principal); margin-top: 15px; }
+
+        /* SEÇÕES GERAIS */
+        section { padding: 80px 10%; }
+        .titulo-secao { text-align: center; color: var(--cor-principal); margin-bottom: 40px; font-size: 2.2rem; font-weight: 600; }
+
+        /* DIFERENCIAIS (Layout Desktop Preservado / Mobile Ajustado) */
+        .diferenciais-container { display: table; width: 100%; border-spacing: 0 20px; }
+        .col-imagem, .col-texto { display: table-cell; vertical-align: middle; width: 50%; }
+        .col-texto { padding-left: 5%; }
+        .mosaic-wrapper { position: relative; width: 90%; height: 420px; }
+        .img-main, .img-sub-1, .img-sub-2 { border-radius: 16px; object-fit: cover; border: 4px solid #ffffff; box-shadow: 0 15px 35px rgba(0,0,0,0.1); position: absolute; }
+        .img-main { width: 65%; height: 350px; left: 0; top: 0; }
+        .img-sub-1 { width: 45%; height: 200px; right: 0; top: 30px; z-index: 2; }
+        .img-sub-2 { width: 45%; height: 180px; right: 40px; bottom: 0; z-index: 3; }
+
+        @media (max-width: 768px) {
+            .diferenciais-container { display: flex; flex-direction: column; }
+            .col-imagem, .col-texto { display: block; width: 100%; }
+            .col-texto { padding-left: 0; margin-top: 40px; }
+            .mosaic-wrapper { height: 280px; width: 100%; margin: 0 auto; }
+            .img-main { width: 50%; height: 200px; }
+            .img-sub-1 { width: 40%; height: 120px; top: 20px; }
+            .img-sub-2 { width: 40%; height: 110px; right: 20px; bottom: 0; }
+        }
+
+        /* DEMAIS ELEMENTOS */
+        .grid-servicos { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 30px; }
+        .card-servico { background: #ffffff; padding: 40px; border-radius: 16px; box-shadow: 0 10px 30px rgba(0,0,0,0.04); border-top: 5px solid var(--cor-principal); }
+        .mapa-container { width: 100%; height: 420px; border-radius: 16px; overflow: hidden; box-shadow: 0 6px 20px rgba(0,0,0,0.06); }
+        footer { background: #111; color: #fff; padding: 60px 10%; text-align: center; }
+    </style>
+</head>
+<body>
+
+    <header>
+        <div class="logo-box">
+            <a href="#" class="logo-texto">Luciana<span>Vicente</span></a>
+        </div>
+        <label class="menu-toggle" for="check">☰</label>
+        <input type="checkbox" id="check">
+        <nav>
+            <a href="#sobre">Sobre</a>
+            <a href="#diferenciais">Diferenciais</a>
+            <a href="#servicos">Planos</a>
+            <a href="#contato">Contato</a>
+        </nav>
+    </header>
+
+    <section class="hero">
+        <h1>Corretora de Planos de Saúde</h1>
+        <div class="cta-group">
+            <a href="https://wa.me/5521967744616" class="btn-action">Falar no WhatsApp</a><br>
+            <a href="#" class="btn-action btn-simulador">Simular Plano de Saúde</a>
+        </div>
+    </section>
+
+    <section id="diferenciais">
+        <div class="diferenciais-container">
+            <div class="col-imagem">
+                <div class="mosaic-wrapper">
+                    <img src="luciana_1.png" class="img-main" onerror="this.src='galeria_1.png';" alt="Foto 1">
+                    <img src="luciana_2.png" class="img-sub-1" onerror="this.src='galeria_2.png';" alt="Foto 2">
+                    <img src="luciana_3.png" class="img-sub-2" onerror="this.src='galeria_3.png';" alt="Foto 3">
+                </div>
+            </div>
+            <div class="col-texto">
+                <div class="item-diferencial"><h3>🛡️ A Importância de Escolher com Quem Entende</h3><p>Saúde não é um produto de prateleira. Um plano mal dimensionado gera custos desnecessários.</p></div>
+                <div class="item-diferencial"><h3>⚡ Gestão Proativa de Benefícios</h3><p>Não espero o problema acontecer para agir. Monitoro reajustes e gerencio carências.</p></div>
+                <div class="item-diferencial"><h3>📲 Fácil Acesso e Canal Direto</h3><p>Chega de robôs. Você fala diretamente comigo, de forma humana e sem burocracia.</p></div>
+            </div>
+        </div>
+    </section>
+
+    <section id="servicos" style="background: var(--bg-claro);">
+        <h2 class="titulo-secao">Nossas Soluções</h2>
+        <div class="grid-servicos">
+            <div class="card-servico"><h3>Planos Individuais</h3><p>Proteção completa para sua família.</p></div>
+            <div class="card-servico"><h3>Planos Corporativos</h3><p>Consultoria personalizada para empresas.</p></div>
+            <div class="card-servico"><h3>Planos por Adesão</h3><p>Condições para profissionais liberais.</p></div>
+        </div>
+    </section>
+
+    <section id="contato">
+        <h2 class="titulo-secao">Localização</h2>
+        <div class="mapa-container">
+            <iframe width="100%" height="100%" frameborder="0" src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3674.341490234038!2d-43.11667012476579!3d-22.926202479234856!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x9980d243292403%3A0x6b4034870f7d5c58!2sR.%20Mariz%20e%20Barros%2C%20147%20-%20Icara%C3%AD%2C%20Niter%C3%B3i%20-%20RJ%2C%2024220-120!5e0!3m2!1spt-BR!2sbr!4v1680000000000!5m2!1spt-BR!2sbr"></iframe>
+        </div>
+    </section>
+
+    <footer>
+        <p>Luciana Vicente | Corretora de Planos de Saúde</p>
+    </footer>
+
+</body>
+</html>
