@@ -1,0 +1,311 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Simulador de Planos de Saúde</title>
+    <style>
+        :root { 
+            --primary: #0e5a37; 
+            --secondary: #3af2a4; 
+            --dark: #0e1a23; 
+            --accent: #ff872a; 
+            --bg: #0a4a2e;
+            --ring: #dfe6ee;
+        }
+        body { 
+            font-family: 'Inter', system-ui, sans-serif; 
+            background: var(--bg); 
+            color: #0f172a; 
+            margin: 0; 
+            padding: 20px; 
+            display: flex; 
+            justify-content: center; 
+            min-height: 100vh;
+            align-items: center;
+        }
+        .container { 
+            max-width: 700px; 
+            width: 100%; 
+            background: white; 
+            padding: 30px; 
+            border-radius: 20px; 
+            box-shadow: 0 30px 60px rgba(0,0,0,0.4); 
+            position: relative;
+            overflow: hidden;
+        }
+        
+        /* Headers & Texts */
+        h2 { color: var(--primary); margin-top: 0; font-size: 24px; border-bottom: 2px solid #f0fdf4; padding-bottom: 10px;}
+        .subtitle { font-size: 13px; color: #64748b; margin-bottom: 20px; }
+        
+        /* Steps Animation */
+        .step { display: none; }
+        .step.active { display: block; animation: fadeIn 0.4s cubic-bezier(0.2, 0.8, 0.2, 1); }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(15px); } to { opacity: 1; transform: translateY(0); } }
+
+        /* Form Elements */
+        label { display: block; font-size: 13px; font-weight: 600; color: #475569; margin-bottom: 6px; }
+        select, input[type="text"], input[type="tel"], input[type="email"], input[type="number"] { 
+            width: 100%; padding: 12px; border-radius: 10px; border: 1px solid #d6dee8; 
+            background: #f8fafc; color: #0f172a; font-size: 15px; outline: none; transition: 0.2s; box-sizing: border-box;
+        }
+        select:focus, input:focus { border-color: #90c2aa; box-shadow: 0 0 0 3px rgba(25,146,85,.15); }
+        
+        /* Grids */
+        .grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 16px; }
+        .grid3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 16px; margin-bottom: 16px; }
+        .age-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 10px; margin-bottom: 20px; }
+        @media (max-width: 600px) {
+            .grid2, .grid3 { grid-template-columns: 1fr; }
+            .age-grid { grid-template-columns: repeat(2, 1fr); }
+        }
+
+        /* Radio Choices */
+        .inline-choices { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+        .choice { 
+            display: flex; align-items: center; gap: 10px; padding: 12px; 
+            border: 1px solid #d6dee8; border-radius: 10px; background: #f8fafc; 
+            cursor: pointer; user-select: none; font-size: 14px; font-weight: 500;
+        }
+        .choice input { margin: 0; accent-color: var(--primary); transform: scale(1.2); }
+
+        /* CNPJ Wrap */
+        #cnpjWrap { opacity: 0.35; pointer-events: none; transition: 0.3s; margin-top: 10px;}
+        #cnpjWrap.active { opacity: 1; pointer-events: auto; }
+
+        /* Botões */
+        .actions { display: flex; justify-content: space-between; align-items: center; margin-top: 30px; border-top: 1px solid #eef2f6; padding-top: 20px;}
+        .btn { padding: 14px 24px; border-radius: 12px; font-weight: 800; cursor: pointer; border: none; font-size: 15px; transition: 0.2s; }
+        .btn-back { background: #f2f7fb; color: #475569; border: 1px solid #d6dee8; }
+        .btn-back:hover { background: #e2e8f0; }
+        .btn-primary { background: linear-gradient(180deg, #ff872a, #ff6a00); color: #fff; text-shadow: 0 1px 2px rgba(0,0,0,0.2); box-shadow: 0 4px 12px rgba(255, 106, 0, 0.3); }
+        .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 6px 16px rgba(255, 106, 0, 0.4); }
+
+        /* Loader & Status */
+        #statusBox { text-align: center; font-weight: bold; color: var(--primary); margin-top: 15px; font-size: 14px; display: none; }
+        .hint { font-size: 11px; color: #64748b; margin-top: 4px; }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    
+    <div id="step1" class="step active">
+        <h2>Selecione o Plano</h2>
+        <p class="subtitle">Escolha a operadora desejada para iniciar sua cotação.</p>
+        
+        <label for="select-operadora">Operadora</label>
+        <select id="select-operadora">
+            <option value="">Carregando opções da tabela...</option>
+        </select>
+
+        <div class="actions" style="justify-content: flex-end;">
+            <button class="btn btn-primary" onclick="avancarParaFormulario()">Continuar Cotação ➔</button>
+        </div>
+    </div>
+
+    <div id="step2" class="step">
+        <h2>Dados da Cotação</h2>
+        <p class="subtitle">Preencha os dados abaixo. Finalizaremos seu atendimento direto no WhatsApp.</p>
+
+        <form id="formCotacao">
+            <div class="grid3">
+                <div>
+                    <label>Nome completo</label>
+                    <input type="text" id="nome" required placeholder="Seu nome">
+                </div>
+                <div>
+                    <label>WhatsApp (apenas números)</label>
+                    <input type="tel" id="whatsapp" required placeholder="Ex: 5521999999999">
+                    <div class="hint">Comece com 55 (DDI).</div>
+                </div>
+                <div>
+                    <label>E-mail</label>
+                    <input type="email" id="email" required placeholder="voce@email.com">
+                </div>
+            </div>
+
+            <div style="margin-top: 25px;">
+                <label style="font-size: 15px; color: var(--primary);">Vidas por faixa etária</label>
+                <div class="hint" style="margin-bottom: 12px;">Preencha apenas onde houver vidas. <b>Obrigatório informar pelo menos 1 vida.</b></div>
+                <div id="idades-inputs" class="age-grid"></div>
+            </div>
+
+            <div class="grid2" style="margin-top: 25px;">
+                <div>
+                    <label>Possui CNPJ?</label>
+                    <div class="inline-choices">
+                        <label class="choice"><input type="radio" name="tem_cnpj" value="nao" checked> <span>Não</span></label>
+                        <label class="choice"><input type="radio" name="tem_cnpj" value="sim"> <span>Sim</span></label>
+                    </div>
+                    <div id="cnpjWrap">
+                        <label style="margin-top: 10px;">Número do CNPJ</label>
+                        <input type="text" id="cnpj" placeholder="00.000.000/0000-00" disabled>
+                    </div>
+                </div>
+
+                <div>
+                    <label>Já tem plano de saúde atualmente?</label>
+                    <div class="inline-choices">
+                        <label class="choice"><input type="radio" name="tem_plano" value="sim"> <span>Sim</span></label>
+                        <label class="choice"><input type="radio" name="tem_plano" value="nao" checked> <span>Não</span></label>
+                    </div>
+                </div>
+            </div>
+
+            <div id="statusBox">✅ Redirecionando para o WhatsApp...</div>
+
+            <div class="actions">
+                <button type="button" class="btn btn-back" onclick="changeStep(1)">🡨 Voltar</button>
+                <button type="submit" class="btn btn-primary" id="btnGerar">Solicitar Cotação (WhatsApp)</button>
+            </div>
+        </form>
+    </div>
+
+</div>
+
+<script>
+    // Configurações Base
+    const numeroCorretor = "5521967744616"; // <--- NOVO NÚMERO ATUALIZADO AQUI
+    let dadosTabelas = {};
+    const faixas = ["0-18", "19-23", "24-28", "29-33", "34-38", "39-43", "44-48", "49-53", "54-58", "59+"];
+
+    // Carregar JSON Dinamicamente (Apenas para popular o select de operadoras)
+    fetch('tabela_precos_saude.json')
+        .then(res => res.json())
+        .then(json => {
+            dadosTabelas = json.tabelas;
+            popularSelect();
+            gerarCamposIdade();
+        })
+        .catch(err => console.error("Erro ao carregar JSON das tabelas:", err));
+
+    function popularSelect() {
+        const select = document.getElementById('select-operadora');
+        select.innerHTML = '<option value="">Selecione uma operadora...</option>';
+        Object.keys(dadosTabelas).forEach(op => {
+            const nomeFormatado = op.replace(/\b\w/g, l => l.toUpperCase());
+            select.add(new Option(nomeFormatado, op));
+        });
+    }
+
+    function gerarCamposIdade() {
+        const container = document.getElementById('idades-inputs');
+        faixas.forEach(f => {
+            container.innerHTML += `
+                <div>
+                    <label>${f} anos</label>
+                    <input type="number" class="qtd-idade" data-faixa="${f}" value="0" min="0">
+                </div>`;
+        });
+    }
+
+    // Controle de Telas
+    function changeStep(n) {
+        document.querySelectorAll('.step').forEach(s => s.classList.remove('active'));
+        document.getElementById('step' + n).classList.add('active');
+    }
+
+    function avancarParaFormulario() {
+        if (!document.getElementById('select-operadora').value) {
+            return alert("Por favor, selecione uma operadora primeiro.");
+        }
+        changeStep(2);
+    }
+
+    // Lógica do CNPJ (Ocultar/Mostrar)
+    document.querySelectorAll('input[name="tem_cnpj"]').forEach(radio => {
+        radio.addEventListener('change', (e) => {
+            const wrap = document.getElementById('cnpjWrap');
+            const input = document.getElementById('cnpj');
+            if(e.target.value === 'sim') {
+                wrap.classList.add('active');
+                input.disabled = false;
+                input.required = true;
+            } else {
+                wrap.classList.remove('active');
+                input.disabled = true;
+                input.required = false;
+                input.value = '';
+            }
+        });
+    });
+
+    // Formatação automática do WhatsApp
+    const inputWhats = document.getElementById('whatsapp');
+    inputWhats.addEventListener('input', () => { inputWhats.value = inputWhats.value.replace(/\D/g, ''); });
+    inputWhats.addEventListener('blur', () => {
+        let val = inputWhats.value;
+        if(val && !val.startsWith('55')) { inputWhats.value = '55' + val; }
+    });
+
+    // Submissão do Formulário Direto pro WhatsApp
+    document.getElementById('formCotacao').addEventListener('submit', (e) => {
+        e.preventDefault();
+
+        // Extrai Idades e Valida Mínimo de 1 Vida
+        const inputsIdades = document.querySelectorAll('.qtd-idade');
+        let totalVidas = 0;
+        let resumoIdadesTexto = "";
+        
+        inputsIdades.forEach(input => {
+            const qtd = parseInt(input.value) || 0;
+            if (qtd > 0) {
+                const faixa = input.getAttribute('data-faixa');
+                totalVidas += qtd;
+                resumoIdadesTexto += `  ├ ${qtd} vida(s) de ${faixa} anos\n`;
+            }
+        });
+
+        if (totalVidas === 0) {
+            return alert("Para gerar a cotação, informe pelo menos 1 pessoa em alguma faixa etária.");
+        }
+
+        // Garante formatação final do WhatsApp
+        let whatsVal = inputWhats.value;
+        if(whatsVal && !whatsVal.startsWith('55')) { whatsVal = '55' + whatsVal; }
+
+        // Variáveis do Form
+        const opSelecionada = document.getElementById('select-operadora').value.toUpperCase();
+        const nomeCliente = document.getElementById('nome').value.trim();
+        const emailCliente = document.getElementById('email').value.trim();
+        const possuiCnpj = document.querySelector('input[name="tem_cnpj"]:checked').value === 'sim';
+        const numCnpj = document.getElementById('cnpj').value.trim();
+        const temPlanoAtual = document.querySelector('input[name="tem_plano"]:checked').value === 'sim';
+
+        // UI Feedback imediato
+        const btn = document.getElementById('btnGerar');
+        const statusBox = document.getElementById('statusBox');
+        btn.disabled = true;
+        btn.style.opacity = '0.5';
+        statusBox.style.display = 'block';
+
+        // Monta a Mensagem para o WhatsApp
+        const msgTexto = `Olá! Gostaria de uma cotação para o plano *${opSelecionada}*.\n\n` +
+                         `*Meus Contatos:*\n` +
+                         `👤 Nome: ${nomeCliente}\n` +
+                         `📧 E-mail: ${emailCliente}\n` +
+                         `📞 WhatsApp: ${whatsVal}\n\n` +
+                         `*Detalhes da Cotação:*\n` +
+                         `🏢 Possui CNPJ?: ${possuiCnpj ? 'Sim (' + numCnpj + ')' : 'Não'}\n` +
+                         `🔄 Já tem plano?: ${temPlanoAtual ? 'Sim' : 'Não'}\n\n` +
+                         `*Composição Familiar (${totalVidas} vidas no total):*\n` +
+                         `${resumoIdadesTexto}\n` +
+                         `Aguardo o envio da tabela de preços!`;
+                         
+        const linkWhats = `https://wa.me/${numeroCorretor}?text=${encodeURIComponent(msgTexto)}`;
+
+        // Abre o WhatsApp instantaneamente e dá um pequeno delay apenas visual no botão
+        window.open(linkWhats, "_blank");
+        
+        setTimeout(() => {
+            btn.innerText = "Cotação Solicitada";
+            btn.disabled = false;
+            btn.style.opacity = '1';
+        }, 1500);
+    });
+</script>
+
+</body>
+</html>
